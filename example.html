@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/85/three.min.js'></script>
+<script src="TrackballControls.js"></script>	
 <script src='threexplanets/threex.planets.js'></script>
 <script src="require/require.js"></script>
 <body style='margin: 0px; background-color: #000000;overflow: hidden;'>
@@ -73,22 +74,27 @@ require([ 'threexplanets/package.require.js'
 	//////////////////////////////////////////////////////////////////////////////////
 	//		Camera Controls							//
 	//////////////////////////////////////////////////////////////////////////////////
-	// var mouse	= {x : 0, y : 0}
-	// document.addEventListener('mousemove', function(event){
-	// 	mouse.x	= (event.clientX / window.innerWidth ) - 0.5
-	// 	mouse.y	= (event.clientY / window.innerHeight) - 0.5
+	//  var mouse	= {x : 0, y : 0}
+	//  document.addEventListener('mousemove', function(event){
+	//  	mouse.x	= (event.clientX / window.innerWidth ) - 0.5
+	//  	mouse.y	= (event.clientY / window.innerHeight) - 0.5
 	// }, false)
-	// onRenderFcts.push(function(delta, now){
-	// 	camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3)
-	// 	camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3)
-	// 	camera.lookAt( scene.position )
-	// })
+	//
+	//  onRenderFcts.push(function(delta, now){
+	//  	camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3)
+	//  	camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3)
+	//  	camera.lookAt( scene.position )
+	//  })
+
+	var controls = new THREE.TrackballControls(camera);
+
 
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the scene						//
 	//////////////////////////////////////////////////////////////////////////////////
 	onRenderFcts.push(function(){
+		controls.update();
 		renderer.render( scene, camera );
 	})
 
