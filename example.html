@@ -31,24 +31,19 @@ require([ 'threexplanets/package.require.js'
 	scene.add( light )
 
 	//////////////////////////////////////////////////////////////////////////////////
-	//		add an object and make it move					//
+	//	ADD AN EARTH OBJECT		//
 	//////////////////////////////////////////////////////////////////////////////////
-
-
 	var geometry   = new THREE.SphereGeometry(0.5, 32, 32)
 	var material  = new THREE.MeshPhongMaterial()
 	material.map    = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
 //	material.bumpMap    = THREE.ImageUtils.loadTexture('threexplanets/images/earthbump1k.jpg')
 //	material.bumpScale = 0.05
-
 	var earthMesh = new THREE.Mesh(geometry, material)
 	scene.add(earthMesh)
 
 	onRenderFcts.push(function(delta, now){
 		earthMesh.rotateY( 0 * delta )
 	})
-
-
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		add star field							//
