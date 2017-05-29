@@ -5,7 +5,7 @@
 <script src="TrackballControls.js"></script>
 <script src='threexplanets/threex.planets.js'></script>
 <script src="require/require.js"></script>
-<body style='margin: 0px; background-color: #000000;overflow: hidden;'>
+<body style='margin: 0px;overflow: hidden;'>
 
 <script>
 
@@ -14,8 +14,10 @@ require([ 'threexplanets/package.require.js'
 
 	// CREATE A RENDERER
 	var renderer	= new THREE.WebGLRenderer();
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
+	//renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( 1000, 500 );
+	var mapDiv = document.getElementById("globe");
+	mapDiv.appendChild( renderer.domElement );
 
 	var onRenderFcts= [];
 
@@ -98,7 +100,80 @@ require([ 'threexplanets/package.require.js'
 		})
 	})
 })
+
 </script>
+
+<script>
+
+
+$(document).ready(function(){
+	 			var output = $("#json");
+        $.getJSON("http://api.waqi.info/feed/shanghai/?token=demo", function(result){
+
+					// var str = JSON.stringify(result, null, 2); // spacing level = 2
+
+					output.append($("<h2/>").html("Pollutants & Weather conditions:"));
+
+
+
+		if (!result || (result.status!="ok")) {
+			output.append("Sorry, something wrong happend: ")
+			if (result.data) output.append($("<div>").html(result.data))
+			return
+		}
+
+		var names = {
+			pm25: "PM<sub>2.5</sub>",
+			pm10: "PM<sub>10</sub>",
+			o3: "Ozone",
+			no2: "Nitrogen Dioxide",
+			so2: "Sulphur Dioxide",
+			co: "Carbon Monoxyde",
+			t: "Temperature",
+			w: "Wind",
+			r: "Rain (precipitation)",
+			h: "Relative Humidity",
+			d: "Dew",
+			p: "Atmostpheric Pressure"
+		}
+
+		output.append($("<div/>").html("Station: "+result.data.city.name+" on "+result.data.time.s))
+
+		var table = $("<table/>").addClass("result");
+		output.append(table);
+
+		var t1 = $("<tr>");
+		t1.append($("<td>").html("Longtitude"));
+	  t1.append($("<td>").html(result.data.city.geo[0]));
+		table.append(t1);
+
+		var tr = $("<tr>");
+		tr.append($("<td>").html("Latitude"));
+		tr.append($("<td>").html(result.data.city.geo[1]));
+		table.append(tr);
+
+		for (var specie in result.data.iaqi) {
+			var aqi = result.data.iaqi[specie].v
+			var tr = $("<tr>");
+			tr.append($("<td>").html(names[specie]||specie))
+			tr.append($("<td>").html(aqi))
+			table.append(tr)
+		}
+
+  });
+
+});
+</script>
+
+<div id="globe"></div>
+
+<div id="json">
+
+</div>
+
+
+
+
 
 
 
