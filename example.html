@@ -9,6 +9,9 @@
 
 <script>
 
+//CREATE A SCENE
+var scene	= new THREE.Scene();
+
 require([ 'threexplanets/package.require.js'
 	], function(){
 
@@ -21,12 +24,10 @@ require([ 'threexplanets/package.require.js'
 
 	var onRenderFcts= [];
 
-	//CREATE A SCENE
-	var scene	= new THREE.Scene();
 
 	//CREATE A CAMERA
 	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000 );
-	camera.position.z = 1.5;
+	camera.position.z = 40;
 
 	//TURN ON THE LIGHT
 	var light	= new THREE.AmbientLight( 'white',1 )
@@ -35,7 +36,7 @@ require([ 'threexplanets/package.require.js'
 	//////////////////////////////////////////////////////////////////////////////////
 	//	ADD AN EARTH OBJECT		//
 	//////////////////////////////////////////////////////////////////////////////////
-	var geometry   = new THREE.SphereGeometry(0.5, 32, 32)
+	var geometry   = new THREE.SphereGeometry(15, 32, 32)
 	var material  = new THREE.MeshPhongMaterial()
 	material.map    = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
 //	material.bumpMap    = THREE.ImageUtils.loadTexture('threexplanets/images/earthbump1k.jpg')
@@ -99,70 +100,152 @@ require([ 'threexplanets/package.require.js'
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})
-})
-
-</script>
-
-<script>
 
 
-$(document).ready(function(){
-	 			var output = $("#json");
-        $.getJSON("http://api.waqi.info/feed/shanghai/?token=demo", function(result){
+	$(document).ready(function(){
+		 			var output = $("#json");
+	        $.getJSON("http://api.waqi.info/feed/warsaw/?token=091d2352892783ce2d50e3827c1f898aa5761be5", function(result){
 
-					// var str = JSON.stringify(result, null, 2); // spacing level = 2
+						output.append($("<h2/>").html("Pollutants & Weather conditions:"));
 
-					output.append($("<h2/>").html("Pollutants & Weather conditions:"));
+						if (!result || (result.status!="ok")) {
+							output.append("Sorry, something wrong happend: ")
+							if (result.data) output.append($("<div>").html(result.data))
+							return
+						}
 
+					var names = {
+						pm25: "PM<sub>2.5</sub>",
+						pm10: "PM<sub>10</sub>",
+						o3: "Ozone",
+						no2: "Nitrogen Dioxide",
+						so2: "Sulphur Dioxide",
+						co: "Carbon Monoxyde",
+						t: "Temperature",
+						w: "Wind",
+						r: "Rain (precipitation)",
+						h: "Relative Humidity",
+						d: "Dew",
+						p: "Atmostpheric Pressure"
+					}
 
+			output.append($("<div/>").html("Station: "+result.data.city.name+" on "+result.data.time.s))
 
-		if (!result || (result.status!="ok")) {
-			output.append("Sorry, something wrong happend: ")
-			if (result.data) output.append($("<div>").html(result.data))
-			return
-		}
+			var table = $("<table/>").addClass("result");
+			output.append(table);
 
-		var names = {
-			pm25: "PM<sub>2.5</sub>",
-			pm10: "PM<sub>10</sub>",
-			o3: "Ozone",
-			no2: "Nitrogen Dioxide",
-			so2: "Sulphur Dioxide",
-			co: "Carbon Monoxyde",
-			t: "Temperature",
-			w: "Wind",
-			r: "Rain (precipitation)",
-			h: "Relative Humidity",
-			d: "Dew",
-			p: "Atmostpheric Pressure"
-		}
+			var t1 = $("<tr>");
+			t1.append($("<td>").html("Latitude"));
+		  t1.append($("<td>").html(result.data.city.geo[0]));
+			table.append(t1);
 
-		output.append($("<div/>").html("Station: "+result.data.city.name+" on "+result.data.time.s))
-
-		var table = $("<table/>").addClass("result");
-		output.append(table);
-
-		var t1 = $("<tr>");
-		t1.append($("<td>").html("Longtitude"));
-	  t1.append($("<td>").html(result.data.city.geo[0]));
-		table.append(t1);
-
-		var tr = $("<tr>");
-		tr.append($("<td>").html("Latitude"));
-		tr.append($("<td>").html(result.data.city.geo[1]));
-		table.append(tr);
-
-		for (var specie in result.data.iaqi) {
-			var aqi = result.data.iaqi[specie].v
 			var tr = $("<tr>");
-			tr.append($("<td>").html(names[specie]||specie))
-			tr.append($("<td>").html(aqi))
-			table.append(tr)
+			tr.append($("<td>").html("Longtitude"));
+			tr.append($("<td>").html(result.data.city.geo[1]));
+			table.append(tr);
+
+			for (var specie in result.data.iaqi) {
+				var aqi = result.data.iaqi[specie].v
+				var tr = $("<tr>");
+				tr.append($("<td>").html(names[specie]||specie))
+				tr.append($("<td>").html(aqi))
+				table.append(tr)
+			}
+
+			THREEx.Planets.createRandomPoints	= function(){
+
+				meshes=[];
+				for(var i = 0 ; i < 1 ; i++){
+
+					var geometry	= new THREE.SphereGeometry(1, 20, 20)
+					var material	= new THREE.MeshBasicMaterial({
+						color: new THREE.Color('white')
+					})
+					var mesh	= new THREE.Mesh(geometry, material)
+					meshes.push(mesh);
+				}
+			return meshes
 		}
 
-  });
+		function addPoints(lat, lon){
+			var meshes= THREEx.Planets.createRandomPoints()	;
+			for(var i = 0; i< meshes.length; i++ ){
+				mesh = meshes[i];
+			scene.add(mesh)
+
+			latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
+			mesh.position.x=latlonpoint[0]
+			mesh.position.y=latlonpoint[1]
+			mesh.position.z=latlonpoint[2]
+			}
+		}
+
+	function calcPosFromLatLonRad(lat,lon,radius){
+
+	var phi   = (90-lat)*(Math.PI/180);
+	var theta = (lon+180)*(Math.PI/180);
+
+	x = -((radius) * Math.sin(phi)*Math.cos(theta));
+	z = ((radius) * Math.sin(phi)*Math.sin(theta));
+	y = ((radius) * Math.cos(phi));
+
+
+		console.log([x,y,z]);
+	   return [x,y,z];
+	}
+	function latLongToVector3(lat, lon, radius, heigth) {
+		var phi = (90-lat)*Math.PI/180;
+		var theta = (lon+180)*Math.PI/180;
+
+		// var x = (radius+heigth) * Math.cos(phi) * Math.cos(theta);
+		// var y = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
+		// var z = (radius+heigth) * Math.sin(phi);
+		var x = -(radius+heigth) * Math.sin(phi) * Math.cos(theta);
+		var z = (radius+heigth) * Math.sin(phi) * Math.sin(theta);
+		var y = (radius+heigth) * Math.cos(phi);
+
+		return new THREE.Vector3(x,y,z);
+	}
+
+	var x = parseFloat(result.data.city.geo[0]);
+	var y = parseFloat((result.data.city.geo[1]));
+	// console.log("x: " + x +" y: "+y);
+	// var value = parseFloat(result.data.iaqi["co"].v);
+	//
+	// var pos = latLongToVector3(y, x, 15, 0.1);
+	//
+	// // var geometry = new THREE.CylinderGeometry( 4,4,4, 32 );
+	// var geometry = new THREE.CircleGeometry(0.2,32);
+	// var material = new THREE.MeshBasicMaterial( { color: 'red' } );
+	// material.side = THREE.DoubleSide;
+	// var circle = new THREE.Mesh( geometry, material );
+	//
+	// //var pos = new THREE.Vector3(20,0,0);
+	// console.log(pos);
+	// circle.position.x=pos.x;
+	// circle.position.y=pos.y;
+	// circle.position.z=pos.z;
+	// circle.lookAt( new THREE.Vector3(0,0,0) );
+	// scene.add( circle );
+
+	addPoints(x,y);
+
+
+
+
+
+		})
+	});
+
+
+
+
+
+
 
 });
+
+
 </script>
 
 <div id="globe"></div>
