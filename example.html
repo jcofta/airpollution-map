@@ -92,6 +92,102 @@ require([ 'threexplanets/package.require.js'
 
 		initializeWorld();
 
+		THREEx.Planets.createRandomPoints	= function(){
+
+			meshes=[];
+			for(var i = 0 ; i < 1 ; i++){
+
+				var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
+				var material	= new THREE.MeshBasicMaterial({
+					color: new THREE.Color('white')
+				})
+				var mesh	= new THREE.Mesh(geometry, material)
+				meshes.push(mesh);
+			}
+		return meshes
+	}
+
+
+	function addPoint(lat, lon, aqi){
+		// meshes=[];
+		if(aqi>300){
+			aqi = 1;
+		}else{
+			aqi /= 300;
+		}
+		color = gradientRGB(aqi)
+		var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
+		var material	= new THREE.MeshBasicMaterial({
+			//color: new THREE.Color('white')
+			//color: new THREE.Color(gradientRGB(aqi))
+			color: new THREE.Color(color[0], color[1], color[2])
+		})
+		var mesh	= new THREE.Mesh(geometry, material)
+		// meshes.push(mesh);
+
+		// var meshes= THREEx.Planets.createRandomPoints()	;
+		// for(var i = 0; i< meshes.length; i++ ){
+		// 	mesh = meshes[i];
+		scene.add(mesh)
+
+		latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
+		mesh.position.x=latlonpoint[0]
+		mesh.position.y=latlonpoint[1]
+		mesh.position.z=latlonpoint[2]
+		// }
+	}
+
+	function addPoints(lat, lon){
+		var meshes= THREEx.Planets.createRandomPoints()	;
+		for(var i = 0; i< meshes.length; i++ ){
+			mesh = meshes[i];
+		scene.add(mesh)
+
+		latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
+		mesh.position.x=latlonpoint[0]
+		mesh.position.y=latlonpoint[1]
+		mesh.position.z=latlonpoint[2]
+		}
+	}
+
+	function calcPosFromLatLonRad(lat,lon,radius){
+
+	var phi   = (90-lat)*(Math.PI/180);
+	var theta = (lon+180)*(Math.PI/180);
+
+	x = -((radius) * Math.sin(phi)*Math.cos(theta));
+	z = ((radius) * Math.sin(phi)*Math.sin(theta));
+	y = ((radius) * Math.cos(phi));
+
+
+		console.log([x,y,z]);
+	   return [x,y,z];
+	}
+
+
+	function gradientRGB(v){
+    var red = 0
+    var green = 0
+    var blue = 0
+
+    if (0 <= v < 0.5)
+		{
+        blue = 1 - 2*v
+        green = 2*v
+        red = 0
+		}
+    else
+		{
+			if (0.5 <= v <= 1)
+			{
+        blue = 0
+        green = 1 - 2*(v-0.5)
+        red = (v-0.5)*2
+			}
+		}
+    return [red,green,blue];
+	}
+
 	$(document).ready(function(){
 
 		 				var output = $("#json");
@@ -146,47 +242,9 @@ require([ 'threexplanets/package.require.js'
 				table.append(tr)
 			}
 
-			THREEx.Planets.createRandomPoints	= function(){
-
-				meshes=[];
-				for(var i = 0 ; i < 1 ; i++){
-
-					var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
-					var material	= new THREE.MeshBasicMaterial({
-						color: new THREE.Color('white')
-					})
-					var mesh	= new THREE.Mesh(geometry, material)
-					meshes.push(mesh);
-				}
-			return meshes
-		}
-
-		function addPoints(lat, lon){
-			var meshes= THREEx.Planets.createRandomPoints()	;
-			for(var i = 0; i< meshes.length; i++ ){
-				mesh = meshes[i];
-			scene.add(mesh)
-
-			latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
-			mesh.position.x=latlonpoint[0]
-			mesh.position.y=latlonpoint[1]
-			mesh.position.z=latlonpoint[2]
-			}
-		}
-
-	function calcPosFromLatLonRad(lat,lon,radius){
-
-	var phi   = (90-lat)*(Math.PI/180);
-	var theta = (lon+180)*(Math.PI/180);
-
-	x = -((radius) * Math.sin(phi)*Math.cos(theta));
-	z = ((radius) * Math.sin(phi)*Math.sin(theta));
-	y = ((radius) * Math.cos(phi));
 
 
-		console.log([x,y,z]);
-	   return [x,y,z];
-	}
+
 
 	var x = parseFloat(result.data.city.geo[0]);
 	var y = parseFloat((result.data.city.geo[1]));
@@ -197,15 +255,16 @@ require([ 'threexplanets/package.require.js'
 
 	var fromFile = $("#data");
 
+	var lines = [];
 
 	$.ajax({
         type: "GET",
+				async: false,
         url: "dane.csv",
         dataType: "text",
         success: function(data) {processData(data);}
      });
 
-		 var lines = [];
 
 	function processData(allText) {
     var allTextLines = allText.split(/\r\n|\n/);
@@ -230,17 +289,25 @@ require([ 'threexplanets/package.require.js'
 
 		for(var i=0; i<allTextLines.length;i++){
 
+			 var x = parseFloat(lines[i][1]);
+			 var y = parseFloat((lines[i][2]));
+			 var aqi = parseFloat((lines[i][6]));
+
+			 addPoint(x,y,aqi)
+
 
 				var t1 = $("<tr>");
 				t1.append($("<td>").html(lines[i][0]));
 				t1.append($("<td>").html(lines[i][1]));
 				t1.append($("<td>").html(lines[i][2]))
 				t1.append($("<td>").html(lines[i][3]))
+				t1.append($("<td>").html(lines[i][4]))
+				t1.append($("<td>").html(lines[i][5]))
+				t1.append($("<td>").html(lines[i][6]))
 				table.append(t1);
 
 
 		}
-
 
 }
 
