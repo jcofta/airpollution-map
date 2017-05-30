@@ -110,17 +110,10 @@ require([ 'threexplanets/package.require.js'
 
 	function addPoint(lat, lon, aqi){
 		// meshes=[];
-		if(aqi>300){
-			aqi = 1;
-		}else{
-			aqi /= 300;
-		}
-		color = gradientRGB(aqi)
+		color = gradientRGB(aqi, 300)
 		var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
 		var material	= new THREE.MeshBasicMaterial({
-			//color: new THREE.Color('white')
-			//color: new THREE.Color(gradientRGB(aqi))
-			color: new THREE.Color(color[0], color[1], color[2])
+			color: new THREE.Color(color.red, color.green, color.blue)
 		})
 		var mesh	= new THREE.Mesh(geometry, material)
 		// meshes.push(mesh);
@@ -164,8 +157,13 @@ require([ 'threexplanets/package.require.js'
 	   return [x,y,z];
 	}
 
-
-	function gradientRGB(v){
+	//Function return color depending on input value
+	function gradientRGB(v, max){
+		if (v > max) {
+			v = 1
+		} else {
+			v = v/max
+		}
     var red = 0
     var green = 0
     var blue = 0
@@ -185,7 +183,10 @@ require([ 'threexplanets/package.require.js'
         red = (v-0.5)*2
 			}
 		}
-    return [red,green,blue];
+    return {
+			red: red,
+			green: green,
+			blue: blue };
 	}
 
 	$(document).ready(function(){
