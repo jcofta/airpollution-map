@@ -249,7 +249,8 @@ require([ 'threexplanets/package.require.js'
 	var x = parseFloat(result.data.city.geo[0]);
 	var y = parseFloat((result.data.city.geo[1]));
 
-	addPoints(x,y);
+	//W-wa
+	//addPoints(x,y);
 
 	});
 
@@ -291,9 +292,28 @@ require([ 'threexplanets/package.require.js'
 
 			 var x = parseFloat(lines[i][1]);
 			 var y = parseFloat((lines[i][2]));
+			 var pm10=parseFloat((lines[i][4]));
+			 var pm25=parseFloat((lines[i][5]));
+			 //console.log(pm25);
 			 var aqi = parseFloat((lines[i][6]));
 
-			 addPoint(x,y,aqi)
+			 //show aqi
+			 //addPoint(x,y,aqi)
+
+		// 	 //show pm25
+		// 	 if(!(isNaN(pm25))){
+		// 	 addPoint(x,y,pm25)
+		//  }else{
+		// 	 continue;
+		//  }
+
+
+		//show pm10
+		if(!(isNaN(pm10))){
+		addPoint(x,y,pm10)
+	}else{
+		continue;
+	}
 
 
 				var t1 = $("<tr>");
