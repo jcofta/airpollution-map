@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script></head>
+<body>
+
+<a href='#' onclick='downloadCSV({ filename: "stock-data.csv" });'>Download CSV</a>
+
+<div id="data">
+sss
+</div>
+
+<script type="text/javascript">
+
+    var cities=[];
+
+    	$(document).ready(function(){
+
+        for(var uid=0;uid<1;uid++){
+          $("#data").text(uid);
+
+          var result;
+
+
+          // var json = (function () {
+          //       var json = null;
+          //       $.ajax({
+          //           'async': false,
+          //           'global': false,
+          //           'url': my_url,
+          //           'dataType': "json",
+          //           'success': function (data) {
+          //               json = data;
+          //           }
+          //       });
+          //       return json;
+          //   })(); 
+
+          $.getJSON("http://api.waqi.info/feed/@"+uid+"/?token=091d2352892783ce2d50e3827c1f898aa5761be5", function(JSONobject){
+
+            result=JSONobject;
+          });
+
+
+            var city = {
+              //Name:result.data.city.name,
+              Id:"",
+              Latitude: "",
+              Longtitude: "",
+              CO: "",
+              PM10: "",
+              PM25: "",
+              AQI: "",
+            }
+
+            city.Id=result.data.idx
+            city.Latitude = result.data.city.geo[0]
+            city.Longtitude = result.data.city.geo[1]
+
+
+
+          for (var specie in result.data.iaqi) {
+
+            // if(specie=="co"){
+            //   city.CO=result.data.iaqi["co"].v
+            // }else{
+            //   city.CO="-";
+            //
+            // }
+            //
+            // if(specie=="pm10"){
+            //   city.PM10=result.data.iaqi["pm10"].v
+            // }else{
+            //   city.PM10="-";
+            // }
+            console.log(specie);
+            console.log(specie=="pm25");
+            if(specie=="pm25"){
+              city.PM25=result.data.iaqi[specie].v
+            }else{
+              city.PM25="-";
+
+            }
+
+          }
+
+            city.AQI=result.data.aqi
+
+            cities.push(city);
+
+     }
+
+    });
+
+
+    function convertArrayOfObjectsToCSV(args) {
+        var result, ctr, keys, columnDelimiter, lineDelimiter, data;
+
+        data = args.data || null;
+        if (data == null || !data.length) {
+            return null;
+        }
+
+        columnDelimiter = args.columnDelimiter || ',';
+        lineDelimiter = args.lineDelimiter || '\n';
+
+        keys = Object.keys(data[0]);
+
+        result = '';
+        result += keys.join(columnDelimiter);
+        result += lineDelimiter;
+
+        data.forEach(function(item) {
+            ctr = 0;
+            keys.forEach(function(key) {
+                if (ctr > 0) result += columnDelimiter;
+
+                result += item[key];
+                ctr++;
+            });
+            result += lineDelimiter;
+        });
+
+        return result;
+    }
+
+    function downloadCSV(args) {
+        var data, filename, link;
+
+        var csv = convertArrayOfObjectsToCSV({
+            data: cities
+        });
+        if (csv == null) return;
+
+        filename = args.filename || 'export.csv';
+
+        if (!csv.match(/^data:text\/csv/i)) {
+            csv = 'data:text/csv;charset=utf-8,' + csv;
+        }
+        data = encodeURI(csv);
+
+        link = document.createElement('a');
+        link.setAttribute('href', data);
+        link.setAttribute('download', filename);
+        link.click();
+    }
+</script>
+
+
+</body>
+</html>
