@@ -15,97 +15,180 @@ var scene	= new THREE.Scene();
 require([ 'threexplanets/package.require.js'
 	], function(){
 
-	// CREATE A RENDERER
-	var renderer	= new THREE.WebGLRenderer();
-	//renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setSize( 1000, 500 );
-	var mapDiv = document.getElementById("globe");
-	mapDiv.appendChild( renderer.domElement );
+		function initializeWorld(){
 
-	var onRenderFcts= [];
+			// CREATE A RENDERER
+			var renderer	= new THREE.WebGLRenderer();
+			//renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setSize( 1000, 500 );
+			var mapDiv = document.getElementById("globe");
+			mapDiv.appendChild( renderer.domElement );
+
+			var onRenderFcts= [];
+
+			//CREATE A CAMERA
+			var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000 );
+			camera.position.z = 40;
+
+			//TURN ON THE LIGHT
+			var light	= new THREE.AmbientLight( 'white',1 )
+			scene.add( light )
+
+			//////////////////////////////////////////////////////////////////////////////////
+			//	ADD AN EARTH OBJECT		//
+			//////////////////////////////////////////////////////////////////////////////////
+			var geometry   = new THREE.SphereGeometry(15, 32, 32)
+			var material  = new THREE.MeshPhongMaterial()
+			material.map    = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
+			var earthMesh = new THREE.Mesh(geometry, material)
+			scene.add(earthMesh)
+
+			onRenderFcts.push(function(delta, now){
+				earthMesh.rotateY( 0 * delta )
+			})
+
+			//////////////////////////////////////////////////////////////////////////////////
+			//		ADD STAR FIELD							//
+			//////////////////////////////////////////////////////////////////////////////////
+
+			var geometry  = new THREE.SphereGeometry(90, 32, 32)
+			var material  = new THREE.MeshBasicMaterial()
+			material.map   = THREE.ImageUtils.loadTexture('threexplanets/images/galaxy_starfield.png')
+			material.side  = THREE.BackSide
+			var starMesh  = new THREE.Mesh(geometry, material)
+			scene.add(starMesh)
+
+			//////////////////////////////////////////////////////////////////////////////////
+			//		Camera Controls							//
+			//////////////////////////////////////////////////////////////////////////////////
+			var controls = new THREE.TrackballControls(camera);
+
+			//////////////////////////////////////////////////////////////////////////////////
+			//		render the scene						//
+			//////////////////////////////////////////////////////////////////////////////////
+			onRenderFcts.push(function(){
+				controls.update();
+				renderer.render( scene, camera );
+			})
+
+			//////////////////////////////////////////////////////////////////////////////////
+			//		loop runner							//
+			//////////////////////////////////////////////////////////////////////////////////
+			var lastTimeMsec= null
+			requestAnimationFrame(function animate(nowMsec){
+				// keep looping
+				requestAnimationFrame( animate );
+				// measure time
+				lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+				var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+				lastTimeMsec	= nowMsec
+				// call each update function
+				onRenderFcts.forEach(function(onRenderFct){
+					onRenderFct(deltaMsec/1000, nowMsec/1000)
+				})
+			})
+		}
 
 
-	//CREATE A CAMERA
-	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000 );
-	camera.position.z = 40;
+		initializeWorld();
 
-	//TURN ON THE LIGHT
-	var light	= new THREE.AmbientLight( 'white',1 )
-	scene.add( light )
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//	ADD AN EARTH OBJECT		//
-	//////////////////////////////////////////////////////////////////////////////////
-	var geometry   = new THREE.SphereGeometry(15, 32, 32)
-	var material  = new THREE.MeshPhongMaterial()
-	material.map    = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
-//	material.bumpMap    = THREE.ImageUtils.loadTexture('threexplanets/images/earthbump1k.jpg')
-//	material.bumpScale = 0.05
-	var earthMesh = new THREE.Mesh(geometry, material)
-	scene.add(earthMesh)
 
-	onRenderFcts.push(function(delta, now){
-		earthMesh.rotateY( 0 * delta )
-	})
+		function CSVToArray( strData, strDelimiter ){
+        // Check to see if the delimiter is defined. If not,
+        // then default to comma.
+        strDelimiter = (strDelimiter || ",");
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		add star field							//
-	//////////////////////////////////////////////////////////////////////////////////
+        // Create a regular expression to parse the CSV values.
+        var objPattern = new RegExp(
+            (
+                // Delimiters.
+                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
 
-	var geometry  = new THREE.SphereGeometry(90, 32, 32)
-	var material  = new THREE.MeshBasicMaterial()
-	material.map   = THREE.ImageUtils.loadTexture('threexplanets/images/galaxy_starfield.png')
-	material.side  = THREE.BackSide
-	var starMesh  = new THREE.Mesh(geometry, material)
-	scene.add(starMesh)
+                // Quoted fields.
+                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Camera Controls							//
-	//////////////////////////////////////////////////////////////////////////////////
-	//  var mouse	= {x : 0, y : 0}
-	//  document.addEventListener('mousemove', function(event){
-	//  	mouse.x	= (event.clientX / window.innerWidth ) - 0.5
-	//  	mouse.y	= (event.clientY / window.innerHeight) - 0.5
-	// }, false)
-	//
-	//  onRenderFcts.push(function(delta, now){
-	//  	camera.position.x += (mouse.x*5 - camera.position.x) * (delta*3)
-	//  	camera.position.y += (mouse.y*5 - camera.position.y) * (delta*3)
-	//  	camera.lookAt( scene.position )
-	//  })
+                // Standard fields.
+                "([^\"\\" + strDelimiter + "\\r\\n]*))"
+            ),
+            "gi"
+            );
 
-	var controls = new THREE.TrackballControls(camera);
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		render the scene						//
-	//////////////////////////////////////////////////////////////////////////////////
-	onRenderFcts.push(function(){
-		controls.update();
-		renderer.render( scene, camera );
-	})
+        // Create an array to hold our data. Give the array
+        // a default empty first row.
+        var arrData = [[]];
 
-	//////////////////////////////////////////////////////////////////////////////////
-	//		loop runner							//
-	//////////////////////////////////////////////////////////////////////////////////
-	var lastTimeMsec= null
-	requestAnimationFrame(function animate(nowMsec){
-		// keep looping
-		requestAnimationFrame( animate );
-		// measure time
-		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-		lastTimeMsec	= nowMsec
-		// call each update function
-		onRenderFcts.forEach(function(onRenderFct){
-			onRenderFct(deltaMsec/1000, nowMsec/1000)
-		})
-	})
+        // Create an array to hold our individual pattern
+        // matching groups.
+        var arrMatches = null;
+
+
+        // Keep looping over the regular expression matches
+        // until we can no longer find a match.
+        while (arrMatches = objPattern.exec( strData )){
+
+            // Get the delimiter that was found.
+            var strMatchedDelimiter = arrMatches[ 1 ];
+
+            // Check to see if the given delimiter has a length
+            // (is not the start of string) and if it matches
+            // field delimiter. If id does not, then we know
+            // that this delimiter is a row delimiter.
+            if (
+                strMatchedDelimiter.length &&
+                strMatchedDelimiter !== strDelimiter
+                ){
+
+                // Since we have reached a new row of data,
+                // add an empty row to our data array.
+                arrData.push( [] );
+
+            }
+
+            var strMatchedValue;
+
+            // Now that we have our delimiter out of the way,
+            // let's check to see which kind of value we
+            // captured (quoted or unquoted).
+            if (arrMatches[ 2 ]){
+
+                // We found a quoted value. When we capture
+                // this value, unescape any double quotes.
+                strMatchedValue = arrMatches[ 2 ].replace(
+                    new RegExp( "\"\"", "g" ),
+                    "\""
+                    );
+
+            } else {
+
+                // We found a non-quoted value.
+                strMatchedValue = arrMatches[ 3 ];
+
+            }
+
+
+            // Now that we have our value string, let's add
+            // it to the data array.
+            arrData[ arrData.length - 1 ].push( strMatchedValue );
+        }
+
+        // Return the parsed data.
+        return( arrData );
+    }
+
+
+
 
 
 	$(document).ready(function(){
-		 			var output = $("#json");
+
+		 				var output = $("#json");
+
 	        $.getJSON("http://api.waqi.info/feed/warsaw/?token=091d2352892783ce2d50e3827c1f898aa5761be5", function(result){
 
+
+						var cityResult = result;
 						output.append($("<h2/>").html("Pollutants & Weather conditions:"));
 
 						if (!result || (result.status!="ok")) {
@@ -157,7 +240,7 @@ require([ 'threexplanets/package.require.js'
 				meshes=[];
 				for(var i = 0 ; i < 1 ; i++){
 
-					var geometry	= new THREE.SphereGeometry(1, 20, 20)
+					var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
 					var material	= new THREE.MeshBasicMaterial({
 						color: new THREE.Color('white')
 					})
@@ -193,54 +276,36 @@ require([ 'threexplanets/package.require.js'
 		console.log([x,y,z]);
 	   return [x,y,z];
 	}
-	function latLongToVector3(lat, lon, radius, heigth) {
-		var phi = (90-lat)*Math.PI/180;
-		var theta = (lon+180)*Math.PI/180;
-
-		// var x = (radius+heigth) * Math.cos(phi) * Math.cos(theta);
-		// var y = (radius+heigth) * Math.cos(phi) * Math.sin(theta);
-		// var z = (radius+heigth) * Math.sin(phi);
-		var x = -(radius+heigth) * Math.sin(phi) * Math.cos(theta);
-		var z = (radius+heigth) * Math.sin(phi) * Math.sin(theta);
-		var y = (radius+heigth) * Math.cos(phi);
-
-		return new THREE.Vector3(x,y,z);
-	}
 
 	var x = parseFloat(result.data.city.geo[0]);
 	var y = parseFloat((result.data.city.geo[1]));
-	// console.log("x: " + x +" y: "+y);
-	// var value = parseFloat(result.data.iaqi["co"].v);
-	//
-	// var pos = latLongToVector3(y, x, 15, 0.1);
-	//
-	// // var geometry = new THREE.CylinderGeometry( 4,4,4, 32 );
-	// var geometry = new THREE.CircleGeometry(0.2,32);
-	// var material = new THREE.MeshBasicMaterial( { color: 'red' } );
-	// material.side = THREE.DoubleSide;
-	// var circle = new THREE.Mesh( geometry, material );
-	//
-	// //var pos = new THREE.Vector3(20,0,0);
-	// console.log(pos);
-	// circle.position.x=pos.x;
-	// circle.position.y=pos.y;
-	// circle.position.z=pos.z;
-	// circle.lookAt( new THREE.Vector3(0,0,0) );
-	// scene.add( circle );
 
 	addPoints(x,y);
 
+	});
 
 
+	//JAK TO URUCHOMIĆ
+	$.get('data.csv', function(data) {
 
+		var fromFile = $("#file");
 
-		})
+		var myData = CSVToArray(data);
+		alert("Loading data");
+
+		for( var i=0;i<data.length-1;i++){
+			var x=parseFloat(myData[i][1]);
+			var y=parseFloat(myData[i][2]);
+		}
+
+		file.append($("<h1/>").html("Data from file!!!"+x +" "+y));
 	});
 
 
 
 
 
+});
 
 
 });
@@ -251,6 +316,11 @@ require([ 'threexplanets/package.require.js'
 <div id="globe"></div>
 
 <div id="json">
+
+</div>
+
+<button>FILE</button>
+<div id="file">
 
 </div>
 
