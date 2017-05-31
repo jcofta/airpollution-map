@@ -61,10 +61,12 @@ require([ 'threexplanets/package.require.js'
 			//////////////////////////////////////////////////////////////////////////////////
 			//		Camera Controls							//
 			//////////////////////////////////////////////////////////////////////////////////
-			var controls = new THREE.TrackballControls(camera);
+			var controls = new THREE.TrackballControls(camera,mapDiv);
 			controls.rotateSpeed = 0.2;
-			controls.zoomSpeed = 1.2;
+			controls.zoomSpeed = 1.0;
 			controls.panSpeed = 0.8;
+		  controls.maxDistance = 50;
+			controls.minDistance = 20;
 
 			//////////////////////////////////////////////////////////////////////////////////
 			//		render the scene						//
@@ -357,14 +359,10 @@ require([ 'threexplanets/package.require.js'
 
 <div id="globe"></div>
 
-<div id="json">
-
-</div>
+<div id="json"></div>
 
 
-<div id="data">
-
-</div>
+<div id="data"></div>
 
 
 
