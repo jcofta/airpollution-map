@@ -62,6 +62,9 @@ require([ 'threexplanets/package.require.js'
 			//		Camera Controls							//
 			//////////////////////////////////////////////////////////////////////////////////
 			var controls = new THREE.TrackballControls(camera);
+			controls.rotateSpeed = 0.2;
+			controls.zoomSpeed = 1.2;
+			controls.panSpeed = 0.8;
 
 			//////////////////////////////////////////////////////////////////////////////////
 			//		render the scene						//
@@ -88,7 +91,6 @@ require([ 'threexplanets/package.require.js'
 				})
 			})
 		}
-
 
 		initializeWorld();
 
@@ -121,12 +123,15 @@ require([ 'threexplanets/package.require.js'
 		// var meshes= THREEx.Planets.createRandomPoints()	;
 		// for(var i = 0; i< meshes.length; i++ ){
 		// 	mesh = meshes[i];
-		scene.add(mesh)
+
 
 		latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
 		mesh.position.x=latlonpoint[0]
 		mesh.position.y=latlonpoint[1]
 		mesh.position.z=latlonpoint[2]
+
+		//scene.add(mesh)
+		return mesh;
 		// }
 	}
 
@@ -243,10 +248,6 @@ require([ 'threexplanets/package.require.js'
 				table.append(tr)
 			}
 
-
-
-
-
 	var x = parseFloat(result.data.city.geo[0]);
 	var y = parseFloat((result.data.city.geo[1]));
 
@@ -289,17 +290,30 @@ require([ 'threexplanets/package.require.js'
 		var table = $("<table/>").addClass("dane");
 		fromFile.append(table);
 
+		//var geom = new THREE.Geometry();
+
+
 		for(var i=0; i<allTextLines.length;i++){
 
 			 var x = parseFloat(lines[i][1]);
 			 var y = parseFloat((lines[i][2]));
+
 			 var pm10=parseFloat((lines[i][4]));
 			 var pm25=parseFloat((lines[i][5]));
-			 //console.log(pm25);
 			 var aqi = parseFloat((lines[i][6]));
 
 			 //show aqi
-			 //addPoint(x,y,aqi)
+			 if(!(isNaN(aqi))){
+			 	 var ball=addPoint(x,y,aqi)
+				 scene.add(ball);
+				 //THREE.GeometryUtils.merge(geom,ball);
+		  }else
+			{
+		 	 continue;
+		  }
+
+
+
 
 		// 	 //show pm25
 		// 	 if(!(isNaN(pm25))){
@@ -309,13 +323,12 @@ require([ 'threexplanets/package.require.js'
 		//  }
 
 
-		//show pm10
-		if(!(isNaN(pm10))){
-		addPoint(x,y,pm10)
-	}else{
-		continue;
-	}
-
+	// 	//show pm10
+	// 	if(!(isNaN(pm10))){
+	// 	addPoint(x,y,pm10)
+	// }else{
+	// 	continue;
+	// }
 
 				var t1 = $("<tr>");
 				t1.append($("<td>").html(lines[i][0]));
@@ -326,9 +339,11 @@ require([ 'threexplanets/package.require.js'
 				t1.append($("<td>").html(lines[i][5]))
 				t1.append($("<td>").html(lines[i][6]))
 				table.append(t1);
-
-
 		}
+
+		//var total = new THREE.Mesh(geom,new THREE.MeshNormalMaterial());
+
+		// scene.add(total);
 
 }
 
