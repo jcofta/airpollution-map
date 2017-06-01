@@ -32,22 +32,26 @@ def download_and_save_stations(number=1, uid=None):
     for uid in range(start, number):
         station = {}
         station_json = get_station_json(uid)
-        station["UID"] = uid
-        if station_json["data"]["city"]["geo"] != None:
-            station["Lat"] = station_json["data"]["city"]["geo"][0]
-            station["Lon"] = station_json["data"]["city"]["geo"][1]
+        if station_json["data"]["idx"] < 0:
+            continue
+        station["UID"] = station_json["data"]["idx"]
+        if station_json["data"].get("city") is not None:
+            if station_json["data"]["city"].get("geo") is not None:
+                station["Lat"] = station_json["data"]["city"]["geo"][0]
+                station["Lon"] = station_json["data"]["city"]["geo"][1]
         else:
             continue
+        if station_json["data"].get("iaqi") is not None:
+            if type(station_json["data"]["iaqi"]) is dict:
+                for pollution in station_json["data"]["iaqi"].keys():
+                    if pollution == "co":
+                        station["CO"] = station_json["data"]["iaqi"]["co"]["v"]
 
-        for pollution in station_json["data"]["iaqi"].keys():
-            if pollution == "co":
-                station["CO"] = station_json["data"]["iaqi"]["co"]["v"]
+                    if pollution == "pm25":
+                        station["PM25"] = station_json["data"]["iaqi"]["pm25"]["v"]
 
-            if pollution == "pm25":
-                station["PM25"] = station_json["data"]["iaqi"]["pm25"]["v"]
-
-            if pollution == "pm10":
-                station["PM10"] = station_json["data"]["iaqi"]["pm10"]["v"]
+                    if pollution == "pm10":
+                        station["PM10"] = station_json["data"]["iaqi"]["pm10"]["v"]
 
         if station_json["data"]["aqi"] != '-':
             station["AQI"] = station_json["data"]["aqi"]
