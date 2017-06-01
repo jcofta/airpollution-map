@@ -62,8 +62,19 @@
             var earthMesh = new THREE.Mesh(geometry, material)
             scene.add(earthMesh)
 
+            var geometry   = new THREE.SphereGeometry(16, 32, 32)
+            var material = new THREE.MeshPhongMaterial({
+              map: THREE.ImageUtils.loadTexture('threexplanets/images/fair_clouds_4k.png'),
+              transparent: true
+            })
+            var cloudMesh = new THREE.Mesh(geometry, material)
+            //scene.add(cloudMesh)
+
+
+
             onRenderFcts.push(function (delta, now) {
                 earthMesh.rotateY(0 * delta)
+                cloudMesh.rotateY(0 * delta)
             })
 
             //////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +126,7 @@
 
         initializeWorld();
 
-        function addPoint(lat, lon, value, name) {
+        function addPoint(ballPos, value, name) {
 
             if (name == "aqi") {
                 max = 300;
@@ -139,10 +150,9 @@
 
             var mesh = new THREE.Mesh(geometry, material)
 
-            latlonpoint = calcPosFromLatLonRad(lat, lon, 15);
-            mesh.position.x = latlonpoint[0]
-            mesh.position.y = latlonpoint[1]
-            mesh.position.z = latlonpoint[2]
+            mesh.position.x = ballPos[0];
+            mesh.position.y = ballPos[1];
+            mesh.position.z = ballPos[2];
 
             return mesh;
         }
@@ -201,7 +211,7 @@
             $.ajax({
                 type: "GET",
                 async: false,
-                url: "dane.csv",
+                url: "test_data.csv",
                 dataType: "text",
                 success: function (data) {
                     processData(data);
@@ -213,8 +223,8 @@
                 var allTextLines = allText.split(/\r\n|\n/);
                 var headers = allTextLines[0].split(',');
 
-
                 for (var i = 1; i < allTextLines.length; i++) {
+                  //console.log(allTextLines[i]);
                     var data = allTextLines[i].split(',');
                     if (data.length == headers.length) {
 
@@ -227,6 +237,16 @@
                 }
 
             }
+
+            function getPositions(){
+                var positions = [];
+                for(var i=0;i<lines.length;i++){
+                    positions.push(calcPosFromLatLonRad(parseFloat(lines[i][1]), parseFloat(lines[i][2]),15));
+                }
+                return positions;
+            }
+
+            var earthPositions = getPositions();
 
             function displayData() {
 
@@ -249,14 +269,11 @@
 
             }
 
-            var ballNames = [];
 
-            function showWeater(param) {
+
+            function showWeather(param) {
 
                 for (var i = 0; i < lines.length; i++) {
-
-                    var x = parseFloat(lines[i][1]);
-                    var y = parseFloat((lines[i][2]));
 
                     var pm10 = parseFloat((lines[i][4]));
                     var pm25 = parseFloat((lines[i][5]));
@@ -265,9 +282,10 @@
                     if (param == "aqi") {
 
                         if (!(isNaN(aqi))) {
-                            var ball = addPoint(x, y, aqi, "aqi");
+                            var ball = addPoint(earthPositions[i], aqi, "aqi");
                             ball.layers.set(1);
                             scene.add(ball);
+                          //  console.log(aqi);
                         } else {
                             continue;
                         }
@@ -276,7 +294,7 @@
                     if (param == "pm10") {
 
                         if (!(isNaN(pm10))) {
-                            var ball = addPoint(x, y, pm10, "pm10");
+                            var ball = addPoint(earthPositions[i], pm10, "pm10");
                             ball.layers.set(2);
                             scene.add(ball);
                         } else {
@@ -286,7 +304,7 @@
 
                     if (param == "pm25") {
                         if (!(isNaN(pm25))) {
-                            var ball = addPoint(x, y, pm25, "pm25");
+                            var ball = addPoint(earthPositions[i], pm25, "pm25");
                             ball.layers.set(3);
                             scene.add(ball);
                         } else {
@@ -296,22 +314,12 @@
                 }
             }
 
-            function myLayer() {
-                var geometry = new THREE.SphereGeometry(20, 20, 20);
-                var material = new THREE.MeshLambertMaterial({
-                    color: new THREE.Color("white")
-                })
-
-                var mesh = new THREE.Mesh(geometry, material);
-                mesh.layers.set(1);
-                scene.add(mesh);
 
 
-            }
-
-            showWeater("aqi");
-            showWeater("pm10");
-            showWeater("pm25");
+            //displayData();
+            showWeather("aqi");
+            showWeather("pm10");
+            showWeather("pm25");
 
             $("#aqi").click(function () {
                 camera.layers.set(0);
