@@ -2,6 +2,7 @@ import urllib.request
 import json
 import csv
 import time
+import datetime
 
 token = "091d2352892783ce2d50e3827c1f898aa5761be5"
 
@@ -17,7 +18,7 @@ def get_station_json(uid):
 
 def download_and_save_stations(number=1, uid=None):
     # Add header and open csv
-    filename = 'stations' + str(number) + '.csv'
+    filename = 'stations' + str(number) + '_' + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M") + '.csv'
     csvfile = open(filename, 'w')
     keys = ['UID', 'Lat', 'Lon', 'CO', 'PM10', 'PM25', 'AQI']
     writer = csv.DictWriter(csvfile, fieldnames=keys)
