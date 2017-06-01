@@ -208,10 +208,12 @@
             var fromFile = $("#data");
             var lines = [];
 
+            var filename="test_data.csv";
+
             $.ajax({
                 type: "GET",
                 async: false,
-                url: "test_data.csv",
+                url: filename,
                 dataType: "text",
                 success: function (data) {
                     processData(data);
