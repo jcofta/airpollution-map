@@ -12,8 +12,15 @@
              position: absolute;
              top: 50px;
              left: 50px;
+         }
 
+         button {
+             font-size: 20px;
+             display: block;
+             width: 150px;
+             margin: 10px;;
         }
+
     </style>
 </head>
 <body style='margin: 0px;overflow: hidden;'>
@@ -109,7 +116,7 @@
         initializeWorld();
 
         function addPoint(lat, lon, value, name) {
-            // meshes=[];
+
             if (name == "aqi") {
                 max = 300;
             }
@@ -309,17 +316,26 @@
             $("#aqi").click(function () {
                 camera.layers.set(0);
                 camera.layers.enable(1);
+                $(this).css('background-color', '#4CAF50');
+                $("#pm10").css('background-color', 'white');
+                $("#pm25").css('background-color', 'white');
             });
 
             $("#pm10").click(function () {
                 camera.layers.set(0);
                 camera.layers.enable(2);
+                $(this).css('background-color', '#4CAF50');
+                $("#aqi").css('background-color', 'white');
+                $("#pm25").css('background-color', 'white');
 
             });
 
             $("#pm25").click(function () {
                 camera.layers.set(0);
                 camera.layers.enable(3);
+                $(this).css('background-color', '#4CAF50');
+                $("#aqi").css('background-color', 'white');
+                $("#pm10").css('background-color', 'white');
             });
 
 
