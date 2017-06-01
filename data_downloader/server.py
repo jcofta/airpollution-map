@@ -32,6 +32,8 @@ def download_and_save_stations(number=1, uid=None):
     for uid in range(start, number):
         station = {}
         station_json = get_station_json(uid)
+        if station_json["data"].get("status") == 'error':
+            continue
         if station_json["data"]["idx"] < 0:
             continue
         station["UID"] = station_json["data"]["idx"]
