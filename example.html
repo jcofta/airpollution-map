@@ -22,6 +22,7 @@
 
     //CREATE A SCENE
     var scene = new THREE.Scene();
+    var camera;
 
     require(['threexplanets/package.require.js'
     ], function () {
@@ -38,7 +39,7 @@
             var onRenderFcts = [];
 
             //CREATE A CAMERA
-            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
             camera.position.z = 40;
 
             //TURN ON THE LIGHT
@@ -241,6 +242,8 @@
 
             }
 
+            var ballNames = [];
+
             function showWeater(param) {
 
                 for (var i = 0; i < lines.length; i++) {
@@ -256,6 +259,7 @@
 
                         if (!(isNaN(aqi))) {
                             var ball = addPoint(x, y, aqi, "aqi");
+                            ball.layers.set(1);
                             scene.add(ball);
                         } else {
                             continue;
@@ -266,6 +270,7 @@
 
                         if (!(isNaN(pm10))) {
                             var ball = addPoint(x, y, pm10, "pm10");
+                            ball.layers.set(2);
                             scene.add(ball);
                         } else {
                             continue;
@@ -275,6 +280,7 @@
                     if (param == "pm25") {
                         if (!(isNaN(pm25))) {
                             var ball = addPoint(x, y, pm25, "pm25");
+                            ball.layers.set(3);
                             scene.add(ball);
                         } else {
                             continue;
@@ -283,18 +289,37 @@
                 }
             }
 
+            function myLayer() {
+                var geometry = new THREE.SphereGeometry(20, 20, 20);
+                var material = new THREE.MeshLambertMaterial({
+                    color: new THREE.Color("white")
+                })
+
+                var mesh = new THREE.Mesh(geometry, material);
+                mesh.layers.set(1);
+                scene.add(mesh);
+
+
+            }
+
             showWeater("aqi");
+            showWeater("pm10");
+            showWeater("pm25");
 
             $("#aqi").click(function () {
-                showWeater("aqi");
+                camera.layers.set(0);
+                camera.layers.enable(1);
             });
 
             $("#pm10").click(function () {
-                showWeater("pm10");
+                camera.layers.set(0);
+                camera.layers.enable(2);
+
             });
 
             $("#pm25").click(function () {
-                showWeater("pm25");
+                camera.layers.set(0);
+                camera.layers.enable(3);
             });
 
 
