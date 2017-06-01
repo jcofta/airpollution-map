@@ -9,365 +9,336 @@
 
 <script>
 
-//CREATE A SCENE
-var scene	= new THREE.Scene();
+    //CREATE A SCENE
+    var scene = new THREE.Scene();
 
-require([ 'threexplanets/package.require.js'
-	], function(){
+    require(['threexplanets/package.require.js'
+    ], function () {
 
-		function initializeWorld(){
+        function initializeWorld() {
 
-			// CREATE A RENDERER
-			var renderer	= new THREE.WebGLRenderer();
-			//renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.setSize( 1000, 500 );
-			var mapDiv = document.getElementById("globe");
-			mapDiv.appendChild( renderer.domElement );
+            // CREATE A RENDERER
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            //renderer.setSize( 1000, 500 );
+            var mapDiv = document.getElementById("globe");
+            mapDiv.appendChild(renderer.domElement);
 
-			var onRenderFcts= [];
+            var onRenderFcts = [];
 
-			//CREATE A CAMERA
-			var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000 );
-			camera.position.z = 40;
+            //CREATE A CAMERA
+            var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+            camera.position.z = 40;
 
-			//TURN ON THE LIGHT
-			var light	= new THREE.AmbientLight( 'white',1 )
-			scene.add( light )
+            //TURN ON THE LIGHT
+            var light = new THREE.AmbientLight('white', 1)
+            scene.add(light)
 
-			//////////////////////////////////////////////////////////////////////////////////
-			//	ADD AN EARTH OBJECT		//
-			//////////////////////////////////////////////////////////////////////////////////
-			var geometry   = new THREE.SphereGeometry(15, 32, 32)
-			var material  = new THREE.MeshPhongMaterial()
-			material.map    = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
-			var earthMesh = new THREE.Mesh(geometry, material)
-			scene.add(earthMesh)
+            //////////////////////////////////////////////////////////////////////////////////
+            //	ADD AN EARTH OBJECT		//
+            //////////////////////////////////////////////////////////////////////////////////
+            var geometry = new THREE.SphereGeometry(15, 32, 32)
+            var material = new THREE.MeshPhongMaterial()
+            material.map = THREE.ImageUtils.loadTexture('threexplanets/images/earthmap_hires.jpg')
+            var earthMesh = new THREE.Mesh(geometry, material)
+            scene.add(earthMesh)
 
-			onRenderFcts.push(function(delta, now){
-				earthMesh.rotateY( 0 * delta )
-			})
+            onRenderFcts.push(function (delta, now) {
+                earthMesh.rotateY(0 * delta)
+            })
 
-			//////////////////////////////////////////////////////////////////////////////////
-			//		ADD STAR FIELD							//
-			//////////////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////
+            //		ADD STAR FIELD							//
+            //////////////////////////////////////////////////////////////////////////////////
 
-			var geometry  = new THREE.SphereGeometry(90, 32, 32)
-			var material  = new THREE.MeshBasicMaterial()
-			material.map   = THREE.ImageUtils.loadTexture('threexplanets/images/galaxy_starfield.png')
-			material.side  = THREE.BackSide
-			var starMesh  = new THREE.Mesh(geometry, material)
-			scene.add(starMesh)
+            var geometry = new THREE.SphereGeometry(90, 32, 32)
+            var material = new THREE.MeshBasicMaterial()
+            material.map = THREE.ImageUtils.loadTexture('threexplanets/images/galaxy_starfield.png')
+            material.side = THREE.BackSide
+            var starMesh = new THREE.Mesh(geometry, material)
+            scene.add(starMesh)
 
-			//////////////////////////////////////////////////////////////////////////////////
-			//		Camera Controls							//
-			//////////////////////////////////////////////////////////////////////////////////
-			var controls = new THREE.TrackballControls(camera,mapDiv);
-			controls.rotateSpeed = 0.2;
-			controls.zoomSpeed = 1.0;
-			controls.panSpeed = 0.8;
-		  controls.maxDistance = 50;
-			controls.minDistance = 20;
+            //////////////////////////////////////////////////////////////////////////////////
+            //		Camera Controls							//
+            //////////////////////////////////////////////////////////////////////////////////
+            var controls = new THREE.TrackballControls(camera, mapDiv);
+            controls.rotateSpeed = 1.0;
+            controls.zoomSpeed = 1.0;
+            controls.panSpeed = 0.8;
+            controls.maxDistance = 50;
+            controls.minDistance = 20;
 
-			//////////////////////////////////////////////////////////////////////////////////
-			//		render the scene						//
-			//////////////////////////////////////////////////////////////////////////////////
-			onRenderFcts.push(function(){
-				controls.update();
-				renderer.render( scene, camera );
-			})
+            //////////////////////////////////////////////////////////////////////////////////
+            //		render the scene						//
+            //////////////////////////////////////////////////////////////////////////////////
+            onRenderFcts.push(function () {
+                controls.update();
+                renderer.render(scene, camera);
+            })
 
-			//////////////////////////////////////////////////////////////////////////////////
-			//		loop runner							//
-			//////////////////////////////////////////////////////////////////////////////////
-			var lastTimeMsec= null
-			requestAnimationFrame(function animate(nowMsec){
-				// keep looping
-				requestAnimationFrame( animate );
-				// measure time
-				lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
-				var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
-				lastTimeMsec	= nowMsec
-				// call each update function
-				onRenderFcts.forEach(function(onRenderFct){
-					onRenderFct(deltaMsec/1000, nowMsec/1000)
-				})
-			})
-		}
-
-		initializeWorld();
-
-		THREEx.Planets.createRandomPoints	= function(){
-
-			meshes=[];
-			for(var i = 0 ; i < 1 ; i++){
-
-				var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
-				var material	= new THREE.MeshBasicMaterial({
-					color: new THREE.Color('white')
-				})
-				var mesh	= new THREE.Mesh(geometry, material)
-				meshes.push(mesh);
-			}
-		return meshes
-	}
-
-
-	function addPoint(lat, lon, aqi){
-		// meshes=[];
-		color = gradientRGB(aqi, 300)
-		var geometry	= new THREE.SphereGeometry(0.1, 20, 20)
-		var material	= new THREE.MeshBasicMaterial({
-			color: new THREE.Color(color.red, color.green, color.blue)
-		})
-		var mesh	= new THREE.Mesh(geometry, material)
-		// meshes.push(mesh);
-
-		// var meshes= THREEx.Planets.createRandomPoints()	;
-		// for(var i = 0; i< meshes.length; i++ ){
-		// 	mesh = meshes[i];
-
-
-		latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
-		mesh.position.x=latlonpoint[0]
-		mesh.position.y=latlonpoint[1]
-		mesh.position.z=latlonpoint[2]
-
-		//scene.add(mesh)
-		return mesh;
-		// }
-	}
-
-	function addPoints(lat, lon){
-		var meshes= THREEx.Planets.createRandomPoints()	;
-		for(var i = 0; i< meshes.length; i++ ){
-			mesh = meshes[i];
-		scene.add(mesh)
-
-		latlonpoint = calcPosFromLatLonRad(lat,lon, 15);
-		mesh.position.x=latlonpoint[0]
-		mesh.position.y=latlonpoint[1]
-		mesh.position.z=latlonpoint[2]
-		}
-	}
-
-	function calcPosFromLatLonRad(lat,lon,radius){
-
-	var phi   = (90-lat)*(Math.PI/180);
-	var theta = (lon+180)*(Math.PI/180);
-
-	x = -((radius) * Math.sin(phi)*Math.cos(theta));
-	z = ((radius) * Math.sin(phi)*Math.sin(theta));
-	y = ((radius) * Math.cos(phi));
-
-
-		console.log([x,y,z]);
-	   return [x,y,z];
-	}
-
-	//Function return color depending on input value
-	function gradientRGB(v, max){
-		if (v > max) {
-			v = 1
-		} else {
-			v = v/max
-		}
-    var red = 0
-    var green = 0
-    var blue = 0
-
-    if (0 <= v < 0.5)
-		{
-        blue = 1 - 2*v
-        green = 2*v
-        red = 0
-		}
-    else
-		{
-			if (0.5 <= v <= 1)
-			{
-        blue = 0
-        green = 1 - 2*(v-0.5)
-        red = (v-0.5)*2
-			}
-		}
-    return {
-			red: red,
-			green: green,
-			blue: blue };
-	}
-
-	$(document).ready(function(){
-
-		 				var output = $("#json");
-
-	        $.getJSON("http://api.waqi.info/feed/warsaw/?token=091d2352892783ce2d50e3827c1f898aa5761be5", function(result){
-
-
-						var cityResult = result;
-						output.append($("<h2/>").html("Pollutants & Weather conditions:"));
-
-						if (!result || (result.status!="ok")) {
-							output.append("Sorry, something wrong happend: ")
-							if (result.data) output.append($("<div>").html(result.data))
-							return
-						}
-
-					var names = {
-						pm25: "PM<sub>2.5</sub>",
-						pm10: "PM<sub>10</sub>",
-						o3: "Ozone",
-						no2: "Nitrogen Dioxide",
-						so2: "Sulphur Dioxide",
-						co: "Carbon Monoxyde",
-						t: "Temperature",
-						w: "Wind",
-						r: "Rain (precipitation)",
-						h: "Relative Humidity",
-						d: "Dew",
-						p: "Atmostpheric Pressure"
-					}
-
-			output.append($("<div/>").html("Station: "+result.data.city.name+" on "+result.data.time.s))
-
-			var table = $("<table/>").addClass("result");
-			output.append(table);
-
-			var t1 = $("<tr>");
-			t1.append($("<td>").html("Latitude"));
-		  t1.append($("<td>").html(result.data.city.geo[0]));
-			table.append(t1);
-
-			var tr = $("<tr>");
-			tr.append($("<td>").html("Longtitude"));
-			tr.append($("<td>").html(result.data.city.geo[1]));
-			table.append(tr);
-
-			for (var specie in result.data.iaqi) {
-				var aqi = result.data.iaqi[specie].v
-				var tr = $("<tr>");
-				tr.append($("<td>").html(names[specie]||specie))
-				tr.append($("<td>").html(aqi))
-				table.append(tr)
-			}
-
-	var x = parseFloat(result.data.city.geo[0]);
-	var y = parseFloat((result.data.city.geo[1]));
-
-	//W-wa
-	//addPoints(x,y);
-
-	});
-
-	var fromFile = $("#data");
-
-	var lines = [];
-
-	$.ajax({
-        type: "GET",
-				async: false,
-        url: "dane.csv",
-        dataType: "text",
-        success: function(data) {processData(data);}
-     });
-
-
-	function processData(allText) {
-    var allTextLines = allText.split(/\r\n|\n/);
-    var headers = allTextLines[0].split(',');
-
-
-    for (var i=1; i<allTextLines.length; i++) {
-        var data = allTextLines[i].split(',');
-        if (data.length == headers.length) {
-
-            var tarr = [];
-            for (var j=0; j<headers.length; j++) {
-                tarr.push(data[j]);
-            }
-            lines.push(tarr);
+            //////////////////////////////////////////////////////////////////////////////////
+            //		loop runner							//
+            //////////////////////////////////////////////////////////////////////////////////
+            var lastTimeMsec = null
+            requestAnimationFrame(function animate(nowMsec) {
+                // keep looping
+                requestAnimationFrame(animate);
+                // measure time
+                lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60
+                var deltaMsec = Math.min(200, nowMsec - lastTimeMsec)
+                lastTimeMsec = nowMsec
+                // call each update function
+                onRenderFcts.forEach(function (onRenderFct) {
+                    onRenderFct(deltaMsec / 1000, nowMsec / 1000)
+                })
+            })
         }
-    }
 
-		fromFile.append($("<h1/>").html("Data from file!!!"));
-		var table = $("<table/>").addClass("dane");
-		fromFile.append(table);
+        initializeWorld();
 
-		//var geom = new THREE.Geometry();
+        THREEx.Planets.createRandomPoints = function () {
 
+            meshes = [];
+            for (var i = 0; i < 1; i++) {
 
-		for(var i=0; i<allTextLines.length;i++){
-
-			 var x = parseFloat(lines[i][1]);
-			 var y = parseFloat((lines[i][2]));
-
-			 var pm10=parseFloat((lines[i][4]));
-			 var pm25=parseFloat((lines[i][5]));
-			 var aqi = parseFloat((lines[i][6]));
-
-			 //show aqi
-			 if(!(isNaN(aqi))){
-			 	 var ball=addPoint(x,y,aqi)
-				 scene.add(ball);
-				 //THREE.GeometryUtils.merge(geom,ball);
-		  }else
-			{
-		 	 continue;
-		  }
+                var geometry = new THREE.SphereGeometry(0.1, 20, 20)
+                var material = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color('white')
+                })
+                var mesh = new THREE.Mesh(geometry, material)
+                meshes.push(mesh);
+            }
+            return meshes
+        }
 
 
+        function addPoint(lat, lon, value, name) {
+            // meshes=[];
+            if (name == "aqi") {
+                max = 300;
+            }
+            if (name == "pm10") {
+                max = 300;
+            }
+            if (name == "pm25") {
+                max = 300;
+            }
+
+            color = gradientRGB(value, max)
+            var geometry = new THREE.SphereGeometry(0.1, 20, 20)
+            var material = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(color.red, color.green, color.blue)
+            })
+            var mesh = new THREE.Mesh(geometry, material)
+            // meshes.push(mesh);
+
+            // var meshes= THREEx.Planets.createRandomPoints()	;
+            // for(var i = 0; i< meshes.length; i++ ){
+            // 	mesh = meshes[i];
 
 
-		// 	 //show pm25
-		// 	 if(!(isNaN(pm25))){
-		// 	 addPoint(x,y,pm25)
-		//  }else{
-		// 	 continue;
-		//  }
+            latlonpoint = calcPosFromLatLonRad(lat, lon, 15);
+            mesh.position.x = latlonpoint[0]
+            mesh.position.y = latlonpoint[1]
+            mesh.position.z = latlonpoint[2]
+
+            //scene.add(mesh)
+            return mesh;
+            // }
+        }
+
+        function addPoints(lat, lon) {
+            var meshes = THREEx.Planets.createRandomPoints();
+            for (var i = 0; i < meshes.length; i++) {
+                mesh = meshes[i];
+                scene.add(mesh)
+
+                latlonpoint = calcPosFromLatLonRad(lat, lon, 15);
+                mesh.position.x = latlonpoint[0]
+                mesh.position.y = latlonpoint[1]
+                mesh.position.z = latlonpoint[2]
+            }
+        }
+
+        function calcPosFromLatLonRad(lat, lon, radius) {
+
+            var phi = (90 - lat) * (Math.PI / 180);
+            var theta = (lon + 180) * (Math.PI / 180);
+
+            x = -((radius) * Math.sin(phi) * Math.cos(theta));
+            z = ((radius) * Math.sin(phi) * Math.sin(theta));
+            y = ((radius) * Math.cos(phi));
 
 
-	// 	//show pm10
-	// 	if(!(isNaN(pm10))){
-	// 	addPoint(x,y,pm10)
-	// }else{
-	// 	continue;
-	// }
+            console.log([x, y, z]);
+            return [x, y, z];
+        }
 
-				var t1 = $("<tr>");
-				t1.append($("<td>").html(lines[i][0]));
-				t1.append($("<td>").html(lines[i][1]));
-				t1.append($("<td>").html(lines[i][2]))
-				t1.append($("<td>").html(lines[i][3]))
-				t1.append($("<td>").html(lines[i][4]))
-				t1.append($("<td>").html(lines[i][5]))
-				t1.append($("<td>").html(lines[i][6]))
-				table.append(t1);
-		}
+        //Function return color depending on input value
+        function gradientRGB(v, max) {
+            if (v > max) {
+                v = 1
+            } else {
+                v = v / max
+            }
+            var red = 0
+            var green = 0
+            var blue = 0
 
-		//var total = new THREE.Mesh(geom,new THREE.MeshNormalMaterial());
+            if (0 <= v < 0.5) {
+                blue = 1 - 2 * v
+                green = 2 * v
+                red = 0
+            }
+            else {
+                if (0.5 <= v <= 1) {
+                    blue = 0
+                    green = 1 - 2 * (v - 0.5)
+                    red = (v - 0.5) * 2
+                }
+            }
+            return {
+                red: red,
+                green: green,
+                blue: blue
+            };
+        }
 
-		// scene.add(total);
+        $(document).ready(function () {
 
-}
+            var fromFile = $("#data");
+            var lines = [];
 
-});
+            $.ajax({
+                type: "GET",
+                async: false,
+                url: "dane.csv",
+                dataType: "text",
+                success: function (data) {
+                    processData(data);
+                }
+            });
 
 
-});
+            function processData(allText) {
+                var allTextLines = allText.split(/\r\n|\n/);
+                var headers = allTextLines[0].split(',');
+
+
+                for (var i = 1; i < allTextLines.length; i++) {
+                    var data = allTextLines[i].split(',');
+                    if (data.length == headers.length) {
+
+                        var tarr = [];
+                        for (var j = 0; j < headers.length; j++) {
+                            tarr.push(data[j]);
+                        }
+                        lines.push(tarr);
+                    }
+                }
+
+            }
+
+            function displayData() {
+
+                fromFile.append($("<h1/>").html("Data from file!!!"));
+                var table = $("<table/>").addClass("dane");
+                fromFile.append(table);
+
+                for (var i = 0; i < lines.length; i++) {
+
+                    var t1 = $("<tr>");
+                    t1.append($("<td>").html(lines[i][0]));
+                    t1.append($("<td>").html(lines[i][1]));
+                    t1.append($("<td>").html(lines[i][2]))
+                    t1.append($("<td>").html(lines[i][3]))
+                    t1.append($("<td>").html(lines[i][4]))
+                    t1.append($("<td>").html(lines[i][5]))
+                    t1.append($("<td>").html(lines[i][6]))
+                    table.append(t1);
+                }
+
+            }
+
+            function showWeater(param) {
+
+                for (var i = 0; i < lines.length; i++) {
+
+                    var x = parseFloat(lines[i][1]);
+                    var y = parseFloat((lines[i][2]));
+
+                    var pm10 = parseFloat((lines[i][4]));
+                    var pm25 = parseFloat((lines[i][5]));
+                    var aqi = parseFloat((lines[i][6]));
+
+                    if (param == "aqi") {
+
+                        if (!(isNaN(aqi))) {
+                            var ball = addPoint(x, y, aqi, "aqi");
+                            scene.add(ball);
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if (param == "pm10") {
+
+                        if (!(isNaN(pm10))) {
+                            var ball = addPoint(x, y, pm10, "pm10");
+                            scene.add(ball);
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if (param == "pm25") {
+                        if (!(isNaN(pm25))) {
+                            var ball = addPoint(x, y, pm25, "pm25");
+                            scene.add(ball);
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            showWeater("aqi");
+
+            $("#aqi").click(function () {
+                showWeater("aqi");
+            });
+
+            $("#pm10").click(function () {
+                showWeater("pm10");
+            });
+
+            $("#pm25").click(function () {
+                showWeater("pm25");
+            });
+
+
+        });
+
+
+    });
 
 
 </script>
 
 <div id="globe"></div>
 
+<div id="buttons">
+    <button id="aqi">AQI</button>
+    <button id="pm10">PM10</button>
+    <button id="pm25">PM20</button>
+
+</div>
+
+
 <div id="json"></div>
 
 
 <div id="data"></div>
-
-
-
-
-
 
 
 </body>
