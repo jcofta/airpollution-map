@@ -48,9 +48,16 @@ def gradient(value, max):
         red = (value - 0.5) * 2
     return [red*255, green*255, blue*255]
 
+pollutions = {
+    'co' : [3, 300],
+    'pm10' : [4, 300],
+    'pm25' : [5, 300],
+    'aqi': [6, 300]
+}
 
-def generate_point_map(stations):
+def generate_point_map(stations, selected_poll='aqi'):
     pollution_map = np.zeros((MAP_HEIGHT, MAP_WIDTH, 4), dtype=np.uint8)
+    pollution_index = pollutions[selected_poll][0]
     for station in stations:
         print(station)
         if station[1] == '':
@@ -63,9 +70,9 @@ def generate_point_map(stations):
         else:
             lon = float(station[2])
 
-        if station[6] == '':
+        if station[pollution_index] == '':
             continue
-        value = int(station[6])
+        value = float(station[pollution_index])
 
         # Reject failed data
         if -90 > lat or lat > 90:
@@ -75,20 +82,21 @@ def generate_point_map(stations):
 
         x, y = coordinates_to_xy(lat, lon)
         rr, cc = circle(y,x,5)
-        color = gradient(value, 300)
+        color = gradient(value, pollutions[selected_poll][1])
         color.append(200)
         pollution_map[rr, cc] = color
 
     return pollution_map
 
 
+
 def main():
-    all_stations = read_from_csv('../data_downloader/stations9000.csv')
-    worldmap = generate_point_map(all_stations)
+    filename = 'stations9000'
+    all_stations = read_from_csv('../data_downloader/'+filename+'.csv')
 
-    img = Image.fromarray(worldmap, 'RGBA')
-    img.save('my.png')
-    img.show()
-
+    for pollution in pollutions.keys():
+        worldmap = generate_point_map(all_stations, pollution)
+        img = Image.fromarray(worldmap, 'RGBA')
+        img.save(filename + '_' + pollution + '.png')
 
 main()
