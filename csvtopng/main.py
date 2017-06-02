@@ -20,7 +20,7 @@ def read_from_csv(filename):
 
         # rownum = 0
 
-        for rownum,row in enumerate(reader):
+        for rownum, row in enumerate(reader):
             if rownum == 0:
                 header = row
             else:
@@ -44,16 +44,18 @@ def gradient(value, max):
         red = 0
     elif 0.5 <= value <= 1:
         blue = 0
-        green = 1 - 2*(value - 0.5)
+        green = 1 - 2 * (value - 0.5)
         red = (value - 0.5) * 2
-    return [red*255, green*255, blue*255]
+    return [red * 255, green * 255, blue * 255]
+
 
 pollutions = {
-    'co' : [3, 300],
-    'pm10' : [4, 300],
-    'pm25' : [5, 300],
+    'co': [3, 300],
+    'pm10': [4, 300],
+    'pm25': [5, 300],
     'aqi': [6, 300]
 }
+
 
 def generate_point_map(stations, selected_poll='aqi'):
     pollution_map = np.zeros((MAP_HEIGHT, MAP_WIDTH, 4), dtype=np.uint8)
@@ -81,7 +83,7 @@ def generate_point_map(stations, selected_poll='aqi'):
             continue
 
         x, y = coordinates_to_xy(lat, lon)
-        rr, cc = circle(y,x,5)
+        rr, cc = circle(y, x, 5)
         color = gradient(value, pollutions[selected_poll][1])
         color.append(200)
         pollution_map[rr, cc] = color
@@ -89,14 +91,14 @@ def generate_point_map(stations, selected_poll='aqi'):
     return pollution_map
 
 
-
 def main():
     filename = 'stations9000'
-    all_stations = read_from_csv('../data_downloader/'+filename+'.csv')
+    all_stations = read_from_csv('../data_downloader/' + filename + '.csv')
 
     for pollution in pollutions.keys():
         worldmap = generate_point_map(all_stations, pollution)
         img = Image.fromarray(worldmap, 'RGBA')
         img.save(filename + '_' + pollution + '.png')
+
 
 main()
