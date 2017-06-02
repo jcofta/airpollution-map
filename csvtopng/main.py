@@ -50,9 +50,9 @@ def gradient(value, max):
 
 
 pollutions = {
-    'co': [3, 300],
-    'pm10': [4, 300],
-    'pm25': [5, 300],
+    'co': [3, 80],
+    'pm10': [4, 150],
+    'pm25': [5, 220],
     'aqi': [6, 300]
 }
 
@@ -92,7 +92,7 @@ def generate_point_map(stations, selected_poll='aqi'):
 
 
 def main():
-    filename = 'stations9000'
+    filename = 'stations9000_2017-06-01_23:49'
     all_stations = read_from_csv('../data_downloader/' + filename + '.csv')
 
     for pollution in pollutions.keys():
