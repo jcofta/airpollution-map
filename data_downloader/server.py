@@ -31,6 +31,7 @@ def download_and_save_stations(number=1, uid=None):
         start = 0
 
     for uid in range(start, number):
+        print("--- UID: %d --- %s seconds ---" % (uid, time.time() - start_time))
         station = {}
         station_json = get_station_json(uid)
         if station_json["data"].get("status") == 'error':
@@ -67,4 +68,3 @@ def download_and_save_stations(number=1, uid=None):
 start_time = time.time()
 download_and_save_stations(9000)
 # download_and_save_stations(1, uid=17)
-print("--- %s seconds ---" % (time.time() - start_time))
