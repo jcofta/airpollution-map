@@ -7,58 +7,57 @@
 <script src="require/require.js"></script>
 
 <head>
-  <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <style>
 
-         input {
-           margin-right: 10px;
-         }
-         #buttons {
-             position: absolute;
-             top: 20px;
-             left: 50px;
-         }
-
-         #info {
-           position: absolute;
-           top: 20px;
-           right: 50px;
-         }
-
-         #data {
-             position: absolute;
-             bottom: 30px;
-             left: 50px;
-         }
-
-         #authors {
-           position: absolute;
-           bottom: 20px;
-           right: 50px;
-         }
-
-         #loadData {
-             display: inline-block;
-             margin: 0px 0px 0px 5px;
-             width: 75px;
-             font-size: 16px;
-         }
-
-
-
-         h2,h3{
-           color: yellow;
-         }
-
-         button {
-             font-size: 20px;
-             display: block;
-             width: 150px;
-             margin: 10px;
+        input {
+            margin-right: 10px;
         }
 
-        form{
-          float: left;
+        #buttons {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            right: 50px;
+        }
+
+        #data {
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+        }
+
+        #authors {
+            position: absolute;
+            bottom: 20px;
+            right: 50px;
+        }
+
+        #loadData {
+            display: inline-block;
+            margin: 0px 0px 0px 5px;
+            width: 75px;
+            font-size: 16px;
+        }
+
+        h2, h3 {
+            color: yellow;
+        }
+
+        button {
+            font-size: 20px;
+            display: block;
+            width: 150px;
+            margin: 10px;
+        }
+
+        form {
+            float: left;
 
         }
 
@@ -105,13 +104,13 @@
             var earthMesh = new THREE.Mesh(geometry, material)
             scene.add(earthMesh)
 
-            var geometry   = new THREE.SphereGeometry(15.3, 32, 32)
+            var geometry = new THREE.SphereGeometry(15.3, 32, 32)
             var material = new THREE.MeshPhongMaterial({
-              map: THREE.ImageUtils.loadTexture('threexplanets/images/fair_clouds_4k.png'),
-              transparent: true
+                map: THREE.ImageUtils.loadTexture('threexplanets/images/fair_clouds_4k.png'),
+                transparent: true
             })
             var cloudMesh = new THREE.Mesh(geometry, material)
-            cloudMesh.name="clouds"
+            cloudMesh.name = "clouds"
             cloudMesh.layers.set(5);
             scene.add(cloudMesh)
 
@@ -132,7 +131,6 @@
             material.side = THREE.BackSide
             var starMesh = new THREE.Mesh(geometry, material)
             scene.add(starMesh)
-
 
 
             //////////////////////////////////////////////////////////////////////////////////
@@ -190,10 +188,10 @@
             var geometry = new THREE.SphereGeometry(0.1, 20, 20);
             var material = new THREE.MeshLambertMaterial({
                 color: new THREE.Color(color.red, color.green, color.blue),
-                opacity:0.4
+                opacity: 0.4
             })
 
-            material.transparent=true;
+            material.transparent = true;
 
             var mesh = new THREE.Mesh(geometry, material)
 
@@ -231,13 +229,13 @@
             var green = 0;
             var blue = 0;
 
-            if ((0 <= v)&&(v < 0.5)) {
+            if ((0 <= v) && (v < 0.5)) {
                 blue = 1 - 2 * v;
                 green = 2 * v;
                 red = 0;
             }
             else {
-                if ((0.5 <= v)&&(v <= 1)) {
+                if ((0.5 <= v) && (v <= 1)) {
                     blue = 0;
                     green = 1 - 2 * (v - 0.5);
                     red = (v - 0.5) * 2;
@@ -255,7 +253,7 @@
             var fromFile = $("#data");
             var lines = [];
 
-            var filename="test_data.csv";
+            var filename = "test_data.csv";
 
             $.ajax({
                 type: "GET",
@@ -273,7 +271,7 @@
                 var headers = allTextLines[0].split(',');
 
                 for (var i = 1; i < allTextLines.length; i++) {
-                  //console.log(allTextLines[i]);
+                    //console.log(allTextLines[i]);
                     var data = allTextLines[i].split(',');
                     if (data.length == headers.length) {
 
@@ -287,10 +285,10 @@
 
             }
 
-            function getPositions(){
+            function getPositions() {
                 var positions = [];
-                for(var i=0;i<lines.length;i++){
-                    positions.push(calcPosFromLatLonRad(parseFloat(lines[i][1]), parseFloat(lines[i][2]),15));
+                for (var i = 0; i < lines.length; i++) {
+                    positions.push(calcPosFromLatLonRad(parseFloat(lines[i][1]), parseFloat(lines[i][2]), 15));
                 }
                 return positions;
             }
@@ -319,7 +317,6 @@
             }
 
 
-
             function showWeather(param) {
 
                 for (var i = 0; i < lines.length; i++) {
@@ -334,7 +331,7 @@
                             var ball = addPoint(earthPositions[i], aqi, "aqi");
                             ball.layers.set(1);
                             scene.add(ball);
-                          //  console.log(aqi);
+                            //  console.log(aqi);
                         } else {
                             continue;
                         }
@@ -365,62 +362,62 @@
 
             var appliedLayers = [];
 
-            function loadLayers(filename){
-              pollutions=["co","pm10","pm25","aqi"]
-              appliedLayers=[]
-              var i=1;
-              for(var j=0;j<pollutions.length;j++){
-                //console.log(pollutions[j],i);
-                //console.log(filename+'_')
-                  var geometry   = new THREE.SphereGeometry(15.1, 32, 32)
-                  var material = new THREE.MeshPhongMaterial({
-                    map: THREE.ImageUtils.loadTexture('csvtopng/'+filename+'_'+pollutions[j]+'.png'),
-                    transparent: true
-                  })
-                  var pollMesh = new THREE.Mesh(geometry, material)
-                  pollMesh.name=pollutions[j]
-                  appliedLayers.push(pollMesh.name)
-                  // console.log(pollMesh.name)
-                  pollMesh.layers.set(i);
-                  scene.add(pollMesh)
-                  i++;
-              }
+            function loadLayers(filename) {
+                pollutions = ["co", "pm10", "pm25", "aqi"]
+                appliedLayers = []
+                var i = 1;
+                for (var j = 0; j < pollutions.length; j++) {
+                    //console.log(pollutions[j],i);
+                    //console.log(filename+'_')
+                    var geometry = new THREE.SphereGeometry(15.1, 32, 32)
+                    var material = new THREE.MeshPhongMaterial({
+                        map: THREE.ImageUtils.loadTexture('csvtopng/' + filename + '_' + pollutions[j] + '.png'),
+                        transparent: true
+                    })
+                    var pollMesh = new THREE.Mesh(geometry, material)
+                    pollMesh.name = pollutions[j]
+                    appliedLayers.push(pollMesh.name)
+                    // console.log(pollMesh.name)
+                    pollMesh.layers.set(i);
+                    scene.add(pollMesh)
+                    i++;
+                }
             }
 
             //displayData();
             //showWeather("aqi");
             //showWeather("pm10");
-          //  showWeather("pm25");
-          camera.layers.enable(5);
+            //  showWeather("pm25");
+            camera.layers.enable(5);
 
 
-           $("#loadData").click(function(){
-             //console.log(appliedLayers)
-             $('#clouds').prop('checked', false);
-             speed_earth=0;
-             speed_clouds=0;
-             camera.layers.disable(5);
+            $("#loadData").click(function () {
+                //console.log(appliedLayers)
+                $('#clouds').prop('checked', false);
+                speed_earth = 0;
+                speed_clouds = 0;
+                camera.layers.disable(5);
 
-             for(var i=0;i<appliedLayers.length;i++){
-               //console.log(appliedLayers[i])
-               var deleteObj = scene.getObjectByName(appliedLayers[i]);
-               console.log(deleteObj.name)
-              scene.remove(deleteObj)
-             }
-             var name=$("#myList option:selected").text();
-             var trimmedName=$.trim(name.replace(/[\n]+/g,''))
-             loadLayers(trimmedName);
-             console.log(appliedLayers)
-           });
+                for (var i = 0; i < appliedLayers.length; i++) {
+                    //console.log(appliedLayers[i])
+                    var deleteObj = scene.getObjectByName(appliedLayers[i]);
+                    console.log(deleteObj.name)
+                    scene.remove(deleteObj)
+                }
+                var name = $("#myList option:selected").text();
+                var trimmedName = $.trim(name.replace(/[\n]+/g, ''))
+                loadLayers(trimmedName);
+                console.log(appliedLayers)
+            });
 
-          $("#co").click(function () {
-              camera.layers.set(0);
-              camera.layers.enable(1);
-              $(this).css('color', '#4CAF50');
-              $("#pm10").css('color', 'black');
-              $("#pm25").css('color', 'black');
-              $("#aqi").css('color', 'black');
-          });
+            $("#co").click(function () {
+                camera.layers.set(0);
+                camera.layers.enable(1);
+                $(this).css('color', '#4CAF50');
+                $("#pm10").css('color', 'black');
+                $("#pm25").css('color', 'black');
+                $("#aqi").css('color', 'black');
+            });
 
             $("#aqi").click(function () {
                 camera.layers.set(0);
@@ -454,24 +451,17 @@
             $('#clouds').prop('checked', true);
 
             $("#clouds").change(function () {
-              if(this.checked){
-                camera.layers.enable(5);
-              }
-              else{
-                camera.layers.disable(5);
-              }
+                if (this.checked) {
+                    camera.layers.enable(5);
+                }
+                else {
+                    camera.layers.disable(5);
+                }
 
             });
 
 
-
-
-
-
-
         });
-
-
 
 
     });
@@ -492,17 +482,17 @@
 
 <div id="data">
     <form>
-      <select id="myList">
-        <option>
-          stations9000_2017-06-02_04:02
-        </option>
-        <option>
-          stations9000_2017-06-01_23:49
-        </option>
-        <option>
-          stations9000
-        </option>
-      </select>
+        <select id="myList">
+            <option>
+                stations9000_2017-06-02_04:02
+            </option>
+            <option>
+                stations9000_2017-06-01_23:49
+            </option>
+            <option>
+                stations9000
+            </option>
+        </select>
     </form>
     <button id="loadData">OK</button>
 
@@ -510,16 +500,13 @@
 
 
 <div id="info">
-  <h3 style="color:white"><input type="checkbox" id="clouds" name="test" />Clouds</h3>
+    <h3 style="color:white"><input type="checkbox" id="clouds" name="test"/>Clouds</h3>
 
 </div>
 
 <div id="authors">
-  <h3>By J.Cofta, K.Śniatała</h3>
+    <h3>By J.Cofta, K.Śniatała</h3>
 </div>
-
-
-
 
 
 <div id="json"></div>
