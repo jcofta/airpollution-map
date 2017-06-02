@@ -62,19 +62,9 @@
             var earthMesh = new THREE.Mesh(geometry, material)
             scene.add(earthMesh)
 
-            var geometry   = new THREE.SphereGeometry(16, 32, 32)
-            var material = new THREE.MeshPhongMaterial({
-              map: THREE.ImageUtils.loadTexture('threexplanets/images/fair_clouds_4k.png'),
-              transparent: true
-            })
-            var cloudMesh = new THREE.Mesh(geometry, material)
-            //scene.add(cloudMesh)
-
-
-
             onRenderFcts.push(function (delta, now) {
                 earthMesh.rotateY(0 * delta)
-                cloudMesh.rotateY(0 * delta)
+
             })
 
             //////////////////////////////////////////////////////////////////////////////////
@@ -316,19 +306,54 @@
                 }
             }
 
+            function loadLayers(filename){
+              pollutions=["co","pm10","pm25","aqi"]
+              var i=1;
+              for(var j=0;j<pollutions.length;j++){
+                console.log(pollutions[j],i);
+                console.log(filename+'_')
+                  var geometry   = new THREE.SphereGeometry(15.1, 32, 32)
+                  var material = new THREE.MeshPhongMaterial({
+                    map: THREE.ImageUtils.loadTexture('csvtopng/'+filename+'_'+pollutions[j]+'.png'),
+                    transparent: true
+                  })
+                  var cloudMesh = new THREE.Mesh(geometry, material)
+                  cloudMesh.layers.set(i);
+                  scene.add(cloudMesh)
+                  i++;
+              }
+            }
+
 
 
             //displayData();
-            showWeather("aqi");
-            showWeather("pm10");
-            showWeather("pm25");
+            //showWeather("aqi");
+            //showWeather("pm10");
+          //  showWeather("pm25");
+
+
+           $("#OK").click(function(){
+             var name=$("#myList option:selected").text();
+             var trimmedName=$.trim(name.replace(/[\n]+/g,''))
+             loadLayers(trimmedName);
+           });
+
+          $("#co").click(function () {
+              camera.layers.set(0);
+              camera.layers.enable(1);
+              $(this).css('background-color', '#4CAF50');
+              $("#pm10").css('background-color', 'white');
+              $("#pm25").css('background-color', 'white');
+              $("#aqi").css('background-color', 'white');
+          });
 
             $("#aqi").click(function () {
                 camera.layers.set(0);
-                camera.layers.enable(1);
+                camera.layers.enable(4);
                 $(this).css('background-color', '#4CAF50');
                 $("#pm10").css('background-color', 'white');
                 $("#pm25").css('background-color', 'white');
+                $("#co").css('background-color', 'white');
             });
 
             $("#pm10").click(function () {
@@ -337,6 +362,7 @@
                 $(this).css('background-color', '#4CAF50');
                 $("#aqi").css('background-color', 'white');
                 $("#pm25").css('background-color', 'white');
+                $("#co").css('background-color', 'white');
 
             });
 
@@ -346,10 +372,18 @@
                 $(this).css('background-color', '#4CAF50');
                 $("#aqi").css('background-color', 'white');
                 $("#pm10").css('background-color', 'white');
+                $("#co").css('background-color', 'white');
             });
 
 
+
+
+
+
+
         });
+
+
 
 
     });
@@ -360,11 +394,27 @@
 <div id="globe"></div>
 
 <div id="buttons">
+    <button id="co">CO</button>
     <button id="aqi">AQI</button>
     <button id="pm10">PM10</button>
     <button id="pm25">PM20</button>
 
+    <form>
+    <select id="myList">
+      <option>
+        stations9000_2017-06-01_23:49
+      </option>
+      <option>
+        stations9000
+      </option>
+
+    </select>
+    </form>
+    <button id="OK">OK</button>
+
+
 </div>
+
 
 
 <div id="json"></div>
