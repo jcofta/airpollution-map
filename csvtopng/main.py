@@ -92,7 +92,8 @@ def generate_point_map(stations, selected_poll='aqi'):
 
 
 def main():
-    filename = 'stations9000_2017-06-01_23:49'
+    #filename = 'stations9000_2017-06-01_23:49'
+    filename='prediction'
     all_stations = read_from_csv('../data_downloader/' + filename + '.csv')
 
     for pollution in pollutions.keys():
