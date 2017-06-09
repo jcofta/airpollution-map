@@ -3,9 +3,9 @@ import json
 import csv
 import time
 import datetime
+import sys
 
 token = "091d2352892783ce2d50e3827c1f898aa5761be5"
-
 
 def get_station_json(uid):
     url = "http://api.waqi.info/feed/@" + str(uid) + "/?token=" + token
@@ -14,7 +14,6 @@ def get_station_json(uid):
         data = json.loads(response.read().decode())
         print(data)
         return data
-
 
 def download_and_save_stations(number=1, uid=None):
     # Add header and open csv
@@ -65,6 +64,12 @@ def download_and_save_stations(number=1, uid=None):
     csvfile.close()
 
 
+print(len(sys.argv))
 start_time = time.time()
-download_and_save_stations(9000)
-# download_and_save_stations(1, uid=17)
+num = 9000
+uid = 0
+if (len(sys.argv) > 1):
+    num = int(sys.argv[1])
+
+print("Downloading {} stations.".format(str(num)))
+download_and_save_stations(num, uid=uid)
